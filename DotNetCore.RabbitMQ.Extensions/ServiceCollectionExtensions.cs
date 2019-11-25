@@ -14,7 +14,7 @@ namespace DotNetCore.RabbitMQ.Extensions
                 throw new ArgumentNullException(nameof(opt));
             }
 
-            return services.Configure<RabbitMQOptions>(opt).AddTransient<IConnectionChannelPool, ConnectionChannelPool>();
+            return services.Configure<RabbitMQOptions>(opt).AddSingleton<IConnectionChannelPool, ConnectionChannelPool>();
         }
     }
 }
