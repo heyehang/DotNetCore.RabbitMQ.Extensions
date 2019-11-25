@@ -6,9 +6,9 @@ using System.Text;
 
 namespace TestCommon
 {
-    public class TestPublish : PublishService
+    public class TestBPublish : PublishService
     {
-        public TestPublish(ILogger<TestPublish> logger, IConnectionChannelPool connectionChannelPool) : base(logger, connectionChannelPool)
+        public TestBPublish(ILogger<TestBPublish> logger, IEnumerable<IConnectionChannelPool> connectionList) : base(logger, connectionList)
         {
         }
 
@@ -20,6 +20,8 @@ namespace TestCommon
 
         public override string RoutingKey => "test.key";
 
-        public override string ServiceName => "TestPublish";
+        public override string ServiceKey => "TestBPublish";
+
+        public override string ConnectionKey => "TestBconn";
     }
 }

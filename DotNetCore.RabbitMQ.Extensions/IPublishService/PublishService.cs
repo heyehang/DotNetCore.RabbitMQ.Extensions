@@ -2,12 +2,13 @@
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DotNetCore.RabbitMQ.Extensions
 {
-    public abstract class PublishService : IPublishService
+    public abstract class PublishService : IConnectionKey, IPublishService
     {
         public abstract string ExchangeType { get; }
         public abstract string Exchange { get; }
@@ -15,19 +16,25 @@ namespace DotNetCore.RabbitMQ.Extensions
 
         public abstract string RoutingKey { get; }
 
-        public abstract string ServiceName { get; }
+        public abstract string ConnectionKey { get; }
+        public abstract string ServiceKey { get; }
 
         ILogger logger;
-        IConnectionChannelPool connectionChannelPool;
+        IEnumerable<IConnectionChannelPool> connectionList;
 
-        public PublishService(ILogger logger, IConnectionChannelPool connectionChannelPool)
+        public PublishService(ILogger logger, IEnumerable<IConnectionChannelPool> connectionList)
         {
-            this.connectionChannelPool = connectionChannelPool;
+            this.connectionList = connectionList;
             this.logger = logger;
         }
 
         public void Publish(object objmsg)
         {
+            var connectionChannelPool = connectionList.FirstOrDefault(e => e.ConnectionKey == ConnectionKey);
+            if (connectionChannelPool == null)
+            {
+                throw new Exception($"{ServiceKey}未找到相应的ConnectionChannelPool,请确保ConnectionKey是否匹配实现");
+            }
             var channel = connectionChannelPool.Rent();
             try
             {
@@ -43,7 +50,7 @@ namespace DotNetCore.RabbitMQ.Extensions
             }
             catch (Exception ex)
             {
-                logger.LogError($"{ServiceName}发送消息出错：{ex.StackTrace}");
+                logger.LogError($"{ServiceKey}发送消息出错：{ex.StackTrace}");
                 throw;
             }
             finally
@@ -58,6 +65,11 @@ namespace DotNetCore.RabbitMQ.Extensions
 
         public Task PublishAsync(object objmsg)
         {
+            var connectionChannelPool = connectionList.FirstOrDefault(e => e.ConnectionKey == ConnectionKey);
+            if (connectionChannelPool == null)
+            {
+                throw new Exception($"{ServiceKey}未找到相应的ConnectionChannelPool,请确保ConnectionKey是否匹配实现");
+            }
             var channel = connectionChannelPool.Rent();
             try
             {
@@ -75,7 +87,7 @@ namespace DotNetCore.RabbitMQ.Extensions
             }
             catch (Exception ex)
             {
-                logger.LogError($"{ServiceName}发送消息出错：{ex.StackTrace}");
+                logger.LogError($"{ServiceKey}发送消息出错：{ex.StackTrace}");
                 throw;
             }
             finally

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DotNetCore.RabbitMQ.Extensions
 {
-    public interface IPublishService
+    public interface IPublishService : IServiceKey
     {
         Task PublishAsync(object objmsg);
 

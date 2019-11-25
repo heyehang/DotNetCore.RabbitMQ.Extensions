@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DotNetCore.RabbitMQ.Extensions
 {
-    public interface IConsumerService
+    public interface IConsumerService : IServiceKey
     {
         void Start();
     }

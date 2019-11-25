@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DotNetCore.RabbitMQ.Extensions
 {
-    public interface IConnectionChannelPool
+    public interface IConnectionChannelPool : IConnectionKey
     {
         IConnection GetConnection();
 

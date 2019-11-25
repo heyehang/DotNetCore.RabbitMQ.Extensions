@@ -12,7 +12,7 @@ using RabbitMQ.Client;
 
 namespace DotNetCore.RabbitMQ.Extensions
 {
-    public class ConnectionChannelPool : IConnectionChannelPool, IDisposable
+    public abstract class ConnectionChannelPool : IConnectionKey, IConnectionChannelPool, IDisposable
     {
         private static readonly object SLock = new object();
         private readonly SemaphoreSlim _connectionLock = new SemaphoreSlim(initialCount: 1, maxCount: 1);
@@ -22,10 +22,11 @@ namespace DotNetCore.RabbitMQ.Extensions
         ILogger logger;
         private IConnection _connection;
         private readonly ConcurrentQueue<IModel> _pool;
-        RabbitMQOptions opt;
-        public ConnectionChannelPool(ILogger<ConnectionChannelPool> logger, IOptions<RabbitMQOptions> opt)
+        public abstract RabbitMQOptions opt { get; }
+        public abstract string ConnectionKey { get; }
+
+        public ConnectionChannelPool(ILogger logger)
         {
-            this.opt = opt.Value;
             this.logger = logger;
             _maxSize = DefaultPoolSize;
             _pool = new ConcurrentQueue<IModel>();
@@ -41,8 +42,9 @@ namespace DotNetCore.RabbitMQ.Extensions
             try
             {
                 var factory = new ConnectionFactory() { HostName = opt.HostName, Port = opt.Port, VirtualHost = opt.VHost, UserName = opt.UserName, Password = opt.PassWord };
-                var serviceName = Assembly.GetEntryAssembly()?.GetName().Name.ToLower();
-                _connection = factory.CreateConnection(serviceName);
+
+                _connection = factory.CreateConnection(ConnectionKey);
+                _connection.ConnectionShutdown += (e, s) => { logger.LogWarning($"RabbitMQ channel model 创建失败!-->{s.ReplyText}"); };
 
                 return _connection;
             }
@@ -81,7 +83,7 @@ namespace DotNetCore.RabbitMQ.Extensions
             }
             catch (Exception e)
             {
-                logger.LogError(e, "RabbitMQ channel model 创建失败!");
+                logger.LogError(e, $"RabbitMQ channel model 创建失败!-->{e.StackTrace}");
                 Console.WriteLine(e);
                 throw;
             }

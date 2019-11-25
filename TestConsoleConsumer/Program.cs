@@ -16,17 +16,15 @@ namespace TestConsoleConsumer
             IServiceCollection services = new ServiceCollection();
 
             services.AddLogging();
-            services.AddRabbitMQConnectionChannelPool(opt =>
-            {
-                opt.HostName = "localhost";
-                opt.Port = 5672;
-                opt.VHost = "test.host";
-                opt.UserName = "guest";
-                opt.PassWord = "guest";
-            });
-            services.AddSingleton<IConsumerService, TestConsumer>();
 
+            services.AddSingleton<IConnectionChannelPool, TestAConnection>();
+            services.AddSingleton<IConnectionChannelPool, TestBConnection>();
+
+            services.AddSingleton<IConsumerService, TestAConsumer>();
+            services.AddSingleton<IConsumerService, TestBConsumer>();
+            services.AddSingleton<IPublishService, TestBPublish>();
             IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var connList = serviceProvider.GetService<IEnumerable<IConnectionChannelPool>>();
 
             var consumerList = serviceProvider.GetService<IEnumerable<IConsumerService>>();
 

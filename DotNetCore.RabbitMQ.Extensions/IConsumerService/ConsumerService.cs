@@ -3,11 +3,12 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DotNetCore.RabbitMQ.Extensions
 {
-    public abstract class ConsumerService : IConsumerService
+    public abstract class ConsumerService : IConnectionKey, IConsumerService
     {
         public abstract string Exchange { get; }
         public abstract string Queue { get; }
@@ -16,19 +17,25 @@ namespace DotNetCore.RabbitMQ.Extensions
 
         public abstract bool AutoAck { get; }
 
-        public abstract string ServiceName { get; }
+        public abstract string ServiceKey { get; }
+        public abstract string ConnectionKey { get; }
 
         ILogger logger;
-        IConnectionChannelPool connectionChannelPool;
+        IEnumerable<IConnectionChannelPool> connectionList;
         public IModel channel;
 
-        public ConsumerService(ILogger logger, IConnectionChannelPool connectionChannelPool)
+        public ConsumerService(ILogger logger, IEnumerable<IConnectionChannelPool> connectionList)
         {
-            this.connectionChannelPool = connectionChannelPool;
+            this.connectionList = connectionList;
             this.logger = logger;
         }
         public virtual void Start()
         {
+            var connectionChannelPool = connectionList.FirstOrDefault(e => e.ConnectionKey == ConnectionKey);
+            if (connectionChannelPool == null)
+            {
+                throw new Exception($"{ServiceKey}未找到相应的ConnectionChannelPool,请确保ConnectionKey是否匹配实现");
+            }
             channel = connectionChannelPool.Rent();
 
             channel.QueueDeclare(queue: Queue, durable: true, exclusive: false, autoDelete: false, arguments: null);
@@ -51,7 +58,7 @@ namespace DotNetCore.RabbitMQ.Extensions
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, $"{ServiceName}服务消费失败!");
+                    logger.LogError(ex, $"{ServiceKey}服务消费失败!");
                     if (!AutoAck)
                     {
                         channel.BasicReject(e.DeliveryTag, true);
