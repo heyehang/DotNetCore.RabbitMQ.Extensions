@@ -2,6 +2,8 @@
 using System;
 using DotNetCore.RabbitMQ.Extensions;
 using TestCommon;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TestConsolePublish
 {
@@ -14,12 +16,12 @@ namespace TestConsolePublish
             services.AddLogging();
 
             services.AddSingleton<IConnectionChannelPool, TestAConnection>();
-
-            services.AddSingleton<IPublishService, TestAPublish>();
+            services.AddSingleton<IConnectionChannelPool, TestCConnection>();
+            services.AddSingleton<IPublishService, TestCPublish>();
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-            var testPublish = serviceProvider.GetService<IPublishService>();
+            var testPublish = serviceProvider.GetService<IEnumerable<IPublishService>>();
 
             #region 普通测试
 
@@ -27,7 +29,7 @@ namespace TestConsolePublish
             {
                 Console.WriteLine("请输入要发送的消息：");
                 var msg = Console.ReadLine();
-                testPublish.Publish(msg);
+                testPublish.First().Publish(msg);
                 Console.WriteLine($"发送的消息{msg}成功");
                 Console.ReadKey();
             }
@@ -44,6 +46,18 @@ namespace TestConsolePublish
             //Console.WriteLine("压力测试完成");
             //Console.ReadKey();
             //#endregion 压力测试
+
+            #region 测试单个实例多消费者
+            while (true)
+            {
+                Console.WriteLine("请输入要发送的消息：");
+                var msg = Console.ReadLine();
+                testPublish.First(e => e.ServiceKey == "TestCPublish").Publish("测试单个实例多消费者");
+                Console.WriteLine($"发送的消息{msg}成功");
+                Console.ReadKey();
+            }
+
+            #endregion 测试单个实例多消费者
         }
     }
 }

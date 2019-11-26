@@ -20,10 +20,10 @@ namespace DotNetCore.RabbitMQ.Extensions
         public abstract string ServiceKey { get; }
         public abstract string ConnectionKey { get; }
 
+        public virtual int ConsumerTotal { get; } = 1;
         ILogger logger;
         IEnumerable<IConnectionChannelPool> connectionList;
-        public IModel channel;
-
+        public List<IModel> channelList = new List<IModel>();
         public ConsumerService(ILogger logger, IEnumerable<IConnectionChannelPool> connectionList)
         {
             this.connectionList = connectionList;
@@ -36,37 +36,41 @@ namespace DotNetCore.RabbitMQ.Extensions
             {
                 throw new Exception($"{ServiceKey}未找到相应的ConnectionChannelPool,请确保ConnectionKey是否匹配实现");
             }
-            channel = connectionChannelPool.Rent();
-
-            channel.QueueDeclare(queue: Queue, durable: true, exclusive: false, autoDelete: false, arguments: null);
-
-            channel.BasicQos(0, 1, false);
-
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Registered += Registered;
-            consumer.Shutdown += Shutdown;
-            consumer.Unregistered += Unregistered;
-            consumer.Received += (s, e) =>
+            for (int i = 0; i < ConsumerTotal; i++)
             {
-                try
+                var channel = connectionChannelPool.Rent();
+
+                channel.QueueDeclare(queue: Queue, durable: true, exclusive: false, autoDelete: false, arguments: null);
+
+                channel.BasicQos(0, 1, false);
+
+                var consumer = new EventingBasicConsumer(channel);
+                consumer.Registered += Registered;
+                consumer.Shutdown += Shutdown;
+                consumer.Unregistered += Unregistered;
+                consumer.Received += (s, e) =>
                 {
-                    Received(s, e);
-                    if (!AutoAck)
+                    try
                     {
-                        channel.BasicAck(e.DeliveryTag, false);
+                        Received(s, e);
+                        if (!AutoAck)
+                        {
+                            channel.BasicAck(e.DeliveryTag, false);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, $"{ServiceKey}服务消费失败!");
-                    if (!AutoAck)
+                    catch (Exception ex)
                     {
-                        channel.BasicReject(e.DeliveryTag, true);
+                        logger.LogError(ex, $"{ServiceKey}服务消费失败!");
+                        if (!AutoAck)
+                        {
+                            channel.BasicReject(e.DeliveryTag, true);
+                        }
+                        throw;
                     }
-                    throw;
-                }
-            };
-            channel.BasicConsume(queue: Queue, autoAck: AutoAck, consumer: consumer);
+                };
+                channel.BasicConsume(queue: Queue, autoAck: AutoAck, consumer: consumer);
+                channelList.Add(channel);
+            }
         }
 
         public abstract void Received(object sender, BasicDeliverEventArgs e);

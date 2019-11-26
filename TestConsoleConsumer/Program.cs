@@ -17,12 +17,31 @@ namespace TestConsoleConsumer
 
             services.AddLogging();
 
-            services.AddSingleton<IConnectionChannelPool, TestAConnection>();
-            services.AddSingleton<IConnectionChannelPool, TestBConnection>();
+            #region 测试不同队列消息相互传递
+            //services.AddSingleton<IConnectionChannelPool, TestAConnection>();
+            //services.AddSingleton<IConnectionChannelPool, TestBConnection>();
 
-            services.AddSingleton<IConsumerService, TestAConsumer>();
-            services.AddSingleton<IConsumerService, TestBConsumer>();
-            services.AddSingleton<IPublishService, TestBPublish>();
+            //services.AddSingleton<IConsumerService, TestCConsumer>();
+            //services.AddSingleton<IConsumerService, TestBConsumer>();
+            //services.AddSingleton<IPublishService, TestBPublish>();
+            //IServiceProvider serviceProvider = services.BuildServiceProvider();
+            //var connList = serviceProvider.GetService<IEnumerable<IConnectionChannelPool>>();
+
+            //var consumerList = serviceProvider.GetService<IEnumerable<IConsumerService>>();
+
+            //Task.Run(() =>
+            //{
+            //    foreach (var e in consumerList)
+            //    {
+            //        e.Start();
+            //    }
+            //});
+            #endregion 测试不同队列消息相互传递
+
+            #region 测试单个实例多消费者
+            services.AddSingleton<IConnectionChannelPool, TestCConnection>();
+            services.AddSingleton<IConsumerService, TestCConsumer>();
+
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             var connList = serviceProvider.GetService<IEnumerable<IConnectionChannelPool>>();
 
@@ -35,6 +54,7 @@ namespace TestConsoleConsumer
                     e.Start();
                 }
             });
+            #endregion 测试单个实例多消费者
 
             Console.ReadKey();
         }
