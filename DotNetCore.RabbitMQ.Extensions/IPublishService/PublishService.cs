@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ namespace DotNetCore.RabbitMQ.Extensions
             var channel = connectionChannelPool.Rent();
             try
             {
-                var body = Encoding.UTF8.GetBytes(objmsg?.ToString());
+                var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(objmsg));
                 channel.ExchangeDeclare(exchange: Exchange, type: ExchangeType, true);
                 channel.QueueDeclare(queue: Queue, durable: true, exclusive: false, autoDelete: false, arguments: null);
                 var properties = channel.CreateBasicProperties();
@@ -73,7 +74,7 @@ namespace DotNetCore.RabbitMQ.Extensions
             var channel = connectionChannelPool.Rent();
             try
             {
-                var body = Encoding.UTF8.GetBytes(objmsg?.ToString());
+                var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(objmsg));
                 channel.ExchangeDeclare(exchange: Exchange, type: ExchangeType, true);
                 channel.QueueDeclare(queue: Queue, durable: true, exclusive: false, autoDelete: false, arguments: null);
                 var properties = channel.CreateBasicProperties();
