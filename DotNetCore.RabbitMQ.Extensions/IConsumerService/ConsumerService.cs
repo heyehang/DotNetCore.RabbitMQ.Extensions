@@ -10,10 +10,7 @@ namespace DotNetCore.RabbitMQ.Extensions
 {
     public abstract class ConsumerService : IConnectionKey, IConsumerService
     {
-        public abstract string Exchange { get; }
         public abstract string Queue { get; }
-
-        public abstract string RoutingKey { get; }
 
         public abstract bool AutoAck { get; }
 

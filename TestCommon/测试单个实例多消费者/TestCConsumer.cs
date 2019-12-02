@@ -10,11 +10,7 @@ namespace TestCommon
 {
     public class TestCConsumer : ConsumerService
     {
-        public override string Exchange => "test.ex";
-
         public override string Queue => "test.query";
-
-        public override string RoutingKey => "test.key";
 
         public override string ServiceKey => "TestCConsumer";
 
