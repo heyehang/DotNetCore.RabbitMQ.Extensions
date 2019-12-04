@@ -14,25 +14,34 @@ namespace TestConsolePublish
             IServiceCollection services = new ServiceCollection();
 
             services.AddLogging();
-
+            //连接池
             services.AddSingleton<IConnectionChannelPool, TestAConnection>();
             services.AddSingleton<IConnectionChannelPool, TestCConnection>();
-            services.AddSingleton<IPublishService, TestCPublish>();
+            services.AddSingleton<IConnectionChannelPool, TestDConnection>();
+
+            //生产者
+            services.AddSingleton<TestAPublish>();
+            services.AddSingleton<TestBPublish>();
+            services.AddSingleton<TestCPublish>();
+            services.AddSingleton<TestDPublish>();
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-            var testPublish = serviceProvider.GetService<IEnumerable<IPublishService>>();
+            var testAPublish = serviceProvider.GetService<TestAPublish>();
+            var testBPublish = serviceProvider.GetService<TestBPublish>();
+            var testCPublish = serviceProvider.GetService<TestCPublish>();
+            var testDPublish = serviceProvider.GetService<TestDPublish>();
 
             #region 普通测试
 
-            while (true)
-            {
-                Console.WriteLine("请输入要发送的消息：");
-                var msg = Console.ReadLine();
-                testPublish.First().Publish(msg);
-                Console.WriteLine($"发送的消息{msg}成功");
-                Console.ReadKey();
-            }
+            //while (true)
+            //{
+            //    Console.WriteLine("请输入要发送的消息：");
+            //    var msg = Console.ReadLine();
+            //    testAPublish.Publish(msg);
+            //    Console.WriteLine($"发送的消息{msg}成功");
+            //    Console.ReadKey();
+            //}
             #endregion 普通测试
 
             //#region 压力测试
@@ -48,16 +57,25 @@ namespace TestConsolePublish
             //#endregion 压力测试
 
             #region 测试单个实例多消费者
+            //while (true)
+            //{
+            //    Console.WriteLine("请输入要发送的消息：");
+            //    var msg = Console.ReadLine();
+            //    testCPublish.Publish("测试单个实例多消费者");
+            //    Console.WriteLine($"发送的消息{msg}成功");
+            //    Console.ReadKey();
+            //}
+
+            #endregion 测试单个实例多消费者
+
             while (true)
             {
                 Console.WriteLine("请输入要发送的消息：");
                 var msg = Console.ReadLine();
-                testPublish.First(e => e.ServiceKey == "TestCPublish").Publish("测试单个实例多消费者");
+                testDPublish.Publish("测试单个实例多消费者");
                 Console.WriteLine($"发送的消息{msg}成功");
                 Console.ReadKey();
             }
-
-            #endregion 测试单个实例多消费者
         }
     }
 }

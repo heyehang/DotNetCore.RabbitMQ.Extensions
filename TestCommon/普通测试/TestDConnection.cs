@@ -6,9 +6,9 @@ using System.Text;
 
 namespace TestCommon
 {
-    public class TestCConnection : ConnectionChannelPool
+    public class TestDConnection : ConnectionChannelPool
     {
-        public TestCConnection(ILogger<TestCConnection> logger) : base(logger)
+        public TestDConnection(ILogger<TestDConnection> logger) : base(logger)
         {
         }
 
@@ -16,11 +16,11 @@ namespace TestCommon
         {
             HostName = "localhost",
             Port = 5672,
-            VHost = "testc.host",
+            VHost = "testd.host",
             UserName = "guest",
             PassWord = "guest"
         };
 
-        public override string ConnectionKey => nameof(TestCConnection);
+        public override string ConnectionKey => nameof(TestDConnection);
     }
 }

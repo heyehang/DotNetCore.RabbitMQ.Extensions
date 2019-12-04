@@ -21,6 +21,6 @@ namespace TestCommon
             PassWord = "guest"
         };
 
-        public override string ConnectionKey => "TestBconn";
+        public override string ConnectionKey => nameof(TestBConnection);
     }
 }

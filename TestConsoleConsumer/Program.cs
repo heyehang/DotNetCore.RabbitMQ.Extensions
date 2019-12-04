@@ -17,36 +17,24 @@ namespace TestConsoleConsumer
 
             services.AddLogging();
 
-            #region 测试不同队列消息相互传递
-            //services.AddSingleton<IConnectionChannelPool, TestAConnection>();
-            //services.AddSingleton<IConnectionChannelPool, TestBConnection>();
-
-            //services.AddSingleton<IConsumerService, TestCConsumer>();
-            //services.AddSingleton<IConsumerService, TestBConsumer>();
-            //services.AddSingleton<IPublishService, TestBPublish>();
-            //IServiceProvider serviceProvider = services.BuildServiceProvider();
-            //var connList = serviceProvider.GetService<IEnumerable<IConnectionChannelPool>>();
-
-            //var consumerList = serviceProvider.GetService<IEnumerable<IConsumerService>>();
-
-            //Task.Run(() =>
-            //{
-            //    foreach (var e in consumerList)
-            //    {
-            //        e.Start();
-            //    }
-            //});
-            #endregion 测试不同队列消息相互传递
-
-            #region 测试单个实例多消费者
+            //连接池
+            services.AddSingleton<IConnectionChannelPool, TestAConnection>();
+            services.AddSingleton<IConnectionChannelPool, TestBConnection>();
             services.AddSingleton<IConnectionChannelPool, TestCConnection>();
+            services.AddSingleton<IConnectionChannelPool, TestDConnection>();
+
+            //消费者
+            services.AddSingleton<IConsumerService, TestAConsumer>();
+            services.AddSingleton<IConsumerService, TestBConsumer>();
             services.AddSingleton<IConsumerService, TestCConsumer>();
+            services.AddSingleton<IConsumerService, TestDConsumer>();
 
+            //生产者
+            services.AddSingleton<TestBPublish>();
+
+            //启动消费监听
             IServiceProvider serviceProvider = services.BuildServiceProvider();
-            var connList = serviceProvider.GetService<IEnumerable<IConnectionChannelPool>>();
-
             var consumerList = serviceProvider.GetService<IEnumerable<IConsumerService>>();
-
             Task.Run(() =>
             {
                 foreach (var e in consumerList)
@@ -54,8 +42,8 @@ namespace TestConsoleConsumer
                     e.Start();
                 }
             });
-            #endregion 测试单个实例多消费者
 
+            Console.WriteLine("准备接受消息");
             Console.ReadKey();
         }
     }

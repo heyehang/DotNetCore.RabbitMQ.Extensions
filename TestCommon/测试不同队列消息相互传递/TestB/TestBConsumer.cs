@@ -11,11 +11,11 @@ namespace TestCommon
     {
         public override string Queue => "test.query";
 
-        public override string ServiceKey => "TestBConsumer";
+        public override string ServiceKey => nameof(TestBConsumer);
 
         public override bool AutoAck => false;
 
-        public override string ConnectionKey => "TestBconn";
+        public override string ConnectionKey => nameof(TestBConnection);
 
         private int count = 1;
 

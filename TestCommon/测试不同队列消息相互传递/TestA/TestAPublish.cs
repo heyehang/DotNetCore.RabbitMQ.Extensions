@@ -20,8 +20,8 @@ namespace TestCommon
 
         public override string RoutingKey => "test.key";
 
-        public override string ServiceKey => "TestPublish";
+        public override string ServiceKey => nameof(TestAPublish);
 
-        public override string ConnectionKey => "TestAconn";
+        public override string ConnectionKey => nameof(TestAConnection);
     }
 }
