@@ -130,7 +130,7 @@ namespace TestCommon
 
         public override void Received(object sender, BasicDeliverEventArgs e)
         {
-		    RemoveEnvironmentModel model = new RemoveEnvironmentModel();
+	    RemoveEnvironmentModel model = new RemoveEnvironmentModel();
             try
             {
                 model = JsonConvert.DeserializeObject<RemoveEnvironmentModel>(Encoding.UTF8.GetString(e.Body));
