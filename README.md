@@ -29,7 +29,7 @@
 *  RoutingKey，队列与交换机绑定的key
 *  ServiceKey,当前服务的key，推荐：nameof(当前类名)
 *  ConnectionKey,当前连接池服务的key，推荐：nameof(当前连接池类名)
-*  ConsumerTotal,当前消费队列所对应的消费者数量（默认为1，支持单例消费者支持单列多重消费者,继承ConsumerService并重写ConsumerTotal即可）
+*  ConsumerTotal,当前消费队列所对应的消费者数量（默认为1，支持单例消费者,继承ConsumerService并重写ConsumerTotal即可）
 # 如何开始？
 
 
