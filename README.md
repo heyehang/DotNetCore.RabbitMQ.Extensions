@@ -9,7 +9,7 @@
 * 开发设计思路是将Rabbit的连接池，生产者，消费者三种业务类型分层分离，从而实现解耦轻量化。
 * 连接池，生产者，消费者的设计实现逻辑采用适配器设计,实现各自之间单一职责与开闭原则，是非常有利于业务的扩展和维护。
 * 连接池：内置连接池管理，无需重复创建连接和信道，并采用安全线程控制。在这里用户只需要关心配置连接池相关参数。
-* 生产者和消费者：底层已经全部抽象实现，无须关注底层逻辑，在这里用户只需要关心配置生产者/消费者相关参数。
+* 生产者和消费者：底层已经全部抽象实现，无须关注底层逻辑，在这里用户只需要关心配置生产者/消费者相关参数，并且消费者支持单例多重消费者。
 * 开发人员只需要在Rabbit管控台新建相关的VHost，其他参数（Exchange，Queue，ExchangeType,RoutingKey）全部代码自动帮你建立完好，无须手动新建，解决繁琐操作。
 * 项目 gitbhub 地址：<https://github.com/shininggold/DotNetCore.RabbitMQ.Extensions>
 
@@ -29,6 +29,7 @@
 *  RoutingKey，队列与交换机绑定的key
 *  ServiceKey,当前服务的key，推荐：nameof(当前类名)
 *  ConnectionKey,当前连接池服务的key，推荐：nameof(当前连接池类名)
+*  ConsumerTotal,当前消费队列所对应的消费者数量（默认为1，支持单例消费者支持单列多重消费者,继承ConsumerService并重写ConsumerTotal即可）
 # 如何开始？
 
 
@@ -114,10 +115,10 @@ namespace TestCommon
 {
     public class TestDConsumer : ConsumerService
     {
-	    ILogger logger;
+        ILogger logger;
         public TestDConsumer(ILogger<TestDConsumer> logger, IEnumerable<IConnectionChannelPool> connectionList) : base(logger, connectionList)
         {
-		  this.logger = logger;
+             this.logger = logger;
         }
 
         public override string Queue => "test.query";
@@ -130,7 +131,7 @@ namespace TestCommon
 
         public override void Received(object sender, BasicDeliverEventArgs e)
         {
-	    RemoveEnvironmentModel model = new RemoveEnvironmentModel();
+            RemoveEnvironmentModel model = new RemoveEnvironmentModel();
             try
             {
                 model = JsonConvert.DeserializeObject<RemoveEnvironmentModel>(Encoding.UTF8.GetString(e.Body));
