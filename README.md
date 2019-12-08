@@ -34,7 +34,7 @@
 
 
 
-1. 下载安装 DotNetCore.RabbitMQ.Extensions
+下载安装 DotNetCore.RabbitMQ.Extensions
 
 ```
 安装命令：Install-Package DotNetCore.RabbitMQ.Extensions
