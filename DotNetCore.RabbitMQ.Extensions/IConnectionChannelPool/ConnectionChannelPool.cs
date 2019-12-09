@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading;
 using DotNetCore.RabbitMQ.Extensions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 
 namespace DotNetCore.RabbitMQ.Extensions
