@@ -121,7 +121,7 @@ namespace TestCommon
              this.logger = logger;
         }
 
-        public override string Queue => "test.query";
+        public override string Queue => "testd.query";
 
         public override bool AutoAck => true;
 
