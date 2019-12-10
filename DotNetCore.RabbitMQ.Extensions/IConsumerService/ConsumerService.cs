@@ -10,6 +10,13 @@ namespace DotNetCore.RabbitMQ.Extensions
 {
     public abstract class ConsumerService : IConnectionKey, IConsumerService
     {
+        ILogger logger;
+        IEnumerable<IConnectionChannelPool> connectionList;
+        public ConsumerService(ILogger logger, IEnumerable<IConnectionChannelPool> connectionList)
+        {
+            this.connectionList = connectionList;
+            this.logger = logger;
+        }
         public abstract string Queue { get; }
 
         public abstract bool AutoAck { get; }
@@ -18,14 +25,6 @@ namespace DotNetCore.RabbitMQ.Extensions
         public abstract string ConnectionKey { get; }
 
         public virtual int ConsumerTotal { get; } = 1;
-        ILogger logger;
-        IEnumerable<IConnectionChannelPool> connectionList;
-        public List<IModel> channelList = new List<IModel>();
-        public ConsumerService(ILogger logger, IEnumerable<IConnectionChannelPool> connectionList)
-        {
-            this.connectionList = connectionList;
-            this.logger = logger;
-        }
         public virtual void Start()
         {
             var connectionChannelPool = connectionList.FirstOrDefault(e => e.ConnectionKey == ConnectionKey);
@@ -66,7 +65,6 @@ namespace DotNetCore.RabbitMQ.Extensions
                     }
                 };
                 channel.BasicConsume(queue: Queue, autoAck: AutoAck, consumer: consumer);
-                channelList.Add(channel);
             }
         }
 
