@@ -11,7 +11,7 @@
 * 连接池：内置连接池管理，无需重复创建连接和信道，并采用安全线程控制。在这里用户只需要关心配置连接池相关参数。
 * 生产者和消费者：底层已经全部抽象实现，无须关注底层逻辑，在这里用户只需要关心配置生产者/消费者相关参数，并且消费者支持单例多重消费者。
 * 开发人员只需要在Rabbit管控台新建相关的VHost，其他参数（Exchange，Queue，ExchangeType,RoutingKey）全部代码自动帮你建立完好，无须手动新建，解决繁琐操作。
-* 项目 gitbhub 地址：<https://github.com/shininggold/DotNetCore.RabbitMQ.Extensions>
+* 项目 gitbhub 地址：<https://github.com/heyehang/DotNetCore.RabbitMQ.Extensions>
 
 ---
 
