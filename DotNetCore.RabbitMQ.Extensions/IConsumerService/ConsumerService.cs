@@ -11,11 +11,15 @@ namespace DotNetCore.RabbitMQ.Extensions
     public abstract class ConsumerService : IConnectionKey, IConsumerService
     {
         ILogger logger;
-        IEnumerable<IConnectionChannelPool> connectionList;
+        IConnectionChannelPool connectionChannelPool;
         public ConsumerService(ILogger logger, IEnumerable<IConnectionChannelPool> connectionList)
         {
-            this.connectionList = connectionList;
             this.logger = logger;
+            connectionChannelPool = connectionList.FirstOrDefault(e => e.ConnectionKey == ConnectionKey);
+            if (connectionChannelPool == null)
+            {
+                throw new Exception($"{ServiceKey}未找到相应的ConnectionChannelPool,请确保ConnectionKey是否匹配实现");
+            }
         }
         public abstract string Queue { get; }
 
@@ -27,11 +31,6 @@ namespace DotNetCore.RabbitMQ.Extensions
         public virtual int ConsumerTotal { get; } = 1;
         public virtual void Start()
         {
-            var connectionChannelPool = connectionList.FirstOrDefault(e => e.ConnectionKey == ConnectionKey);
-            if (connectionChannelPool == null)
-            {
-                throw new Exception($"{ServiceKey}未找到相应的ConnectionChannelPool,请确保ConnectionKey是否匹配实现");
-            }
             for (int i = 0; i < ConsumerTotal; i++)
             {
                 var channel = connectionChannelPool.Rent();

@@ -16,6 +16,7 @@ namespace TestConsolePublish
             services.AddLogging();
             //连接池
             services.AddSingleton<IConnectionChannelPool, TestAConnection>();
+            services.AddSingleton<IConnectionChannelPool, TestBConnection>();
             services.AddSingleton<IConnectionChannelPool, TestCConnection>();
             services.AddSingleton<IConnectionChannelPool, TestDConnection>();
 
