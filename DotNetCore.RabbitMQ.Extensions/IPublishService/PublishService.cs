@@ -30,11 +30,21 @@ namespace DotNetCore.RabbitMQ.Extensions
 
         public abstract string ConnectionKey { get; }
         public abstract string ServiceKey { get; }
+
+        public virtual void BasicAcks(object objmsg)
+        {
+        }
+        public virtual void BasicNacks(object objmsg)
+        {
+        }
+
         public void Publish(object objmsg)
         {
             var channel = connectionChannelPool.Rent();
+
             try
             {
+                channel.ConfirmSelect();
                 var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(objmsg));
 
                 channel.ExchangeDeclare(exchange: Exchange, type: ExchangeType, true);
@@ -44,7 +54,9 @@ namespace DotNetCore.RabbitMQ.Extensions
                 var properties = channel.CreateBasicProperties();
                 properties.DeliveryMode = 2;
 
-                channel.BasicPublish(exchange: Exchange, routingKey: RoutingKey, mandatory: false, basicProperties: properties, body: body);
+                channel.BasicPublish(exchange: Exchange, routingKey: RoutingKey, mandatory: true, basicProperties: properties, body: body);
+
+                if (channel.WaitForConfirms()) BasicAcks(objmsg); else BasicNacks(objmsg);
             }
             catch (Exception ex)
             {
@@ -66,6 +78,7 @@ namespace DotNetCore.RabbitMQ.Extensions
             var channel = connectionChannelPool.Rent();
             try
             {
+                channel.ConfirmSelect();
                 var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(objmsg));
 
                 channel.ExchangeDeclare(exchange: Exchange, type: ExchangeType, true);
@@ -75,8 +88,9 @@ namespace DotNetCore.RabbitMQ.Extensions
                 var properties = channel.CreateBasicProperties();
                 properties.DeliveryMode = 2;
 
-                channel.BasicPublish(exchange: Exchange, routingKey: RoutingKey, mandatory: false, basicProperties: properties, body: body);
+                channel.BasicPublish(exchange: Exchange, routingKey: RoutingKey, mandatory: true, basicProperties: properties, body: body);
 
+                if (channel.WaitForConfirms()) BasicAcks(objmsg); else BasicNacks(objmsg);
                 return Task.CompletedTask;
             }
             catch (Exception ex)

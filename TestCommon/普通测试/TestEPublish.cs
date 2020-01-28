@@ -7,9 +7,9 @@ using System.Text;
 
 namespace TestCommon
 {
-    public class TestDPublish : PublishService
+    public class TestEPublish : PublishService
     {
-        public TestDPublish(ILogger<TestDPublish> logger, IEnumerable<IConnectionChannelPool> connectionList) : base(logger, connectionList)
+        public TestEPublish(ILogger<TestEPublish> logger, IEnumerable<IConnectionChannelPool> connectionList) : base(logger, connectionList)
         {
         }
 
@@ -17,20 +17,21 @@ namespace TestCommon
 
         public override string Exchange => "testd.ex";
 
-        public override string Queue => "testd.query";
+        public override string Queue => "teste.query";
 
-        public override string RoutingKey => "testd.key";
+        public override string RoutingKey => "teste.key";
 
         public override string ConnectionKey => nameof(TestDConnection);
 
-        public override string ServiceKey => nameof(TestDPublish);
+        public override string ServiceKey => nameof(TestEPublish);
+
         public override void BasicAcks(object objmsg)
         {
-            Console.WriteLine($"{nameof(TestDPublish)}发送消息成功！objmsg:{objmsg}");
+            Console.WriteLine($"{nameof(TestEPublish)}发送消息成功！objmsg:{objmsg}");
         }
         public override void BasicNacks(object objmsg)
         {
-            Console.WriteLine($"{nameof(TestDPublish)}发送消息失败！objmsg:{objmsg}");
+            Console.WriteLine($"{nameof(TestEPublish)}发送消息失败！objmsg:{objmsg}");
         }
     }
 }

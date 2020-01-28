@@ -25,13 +25,15 @@ namespace TestConsolePublish
             services.AddSingleton<TestBPublish>();
             services.AddSingleton<TestCPublish>();
             services.AddSingleton<TestDPublish>();
+            services.AddSingleton<TestEPublish>();
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-            var testAPublish = serviceProvider.GetService<TestAPublish>();
-            var testBPublish = serviceProvider.GetService<TestBPublish>();
-            var testCPublish = serviceProvider.GetService<TestCPublish>();
+            //var testAPublish = serviceProvider.GetService<TestAPublish>();
+            //var testBPublish = serviceProvider.GetService<TestBPublish>();
+            //var testCPublish = serviceProvider.GetService<TestCPublish>();
             var testDPublish = serviceProvider.GetService<TestDPublish>();
+            var testEPublish = serviceProvider.GetService<TestEPublish>();
 
             #region 普通测试
 
@@ -73,8 +75,12 @@ namespace TestConsolePublish
             {
                 Console.WriteLine("请输入要发送的消息：");
                 var msg = Console.ReadLine();
-                testDPublish.Publish("测试单个实例多消费者");
-                Console.WriteLine($"发送的消息{msg}成功");
+                //testEPublish.Publish("测试单个实例多消费者");
+                //testDPublish.Publish("测试单个实例多消费者");
+                testEPublish.PublishAsync("测试单个实例多消费者").Wait();
+                testDPublish.PublishAsync("测试单个实例多消费者").Wait();
+
+                //  Console.WriteLine($"发送的消息{msg}成功");
                 Console.ReadKey();
             }
         }
